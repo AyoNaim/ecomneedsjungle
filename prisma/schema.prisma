@@ -1,0 +1,105 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")   // Transaction Mode for queries
+  directUrl = env("DIRECT_URL")     // Session Mode for migrations
+}
+
+// --- AUTH.JS V5 MODELS ---
+
+model User {
+  id            String          @id @default(cuid())
+  name          String?
+  email         String          @unique
+  emailVerified DateTime?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  orders        Order[]
+  ownedAssets   AssetAccess[]
+  createdAt     DateTime        @default(now())
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// --- STORE MODELS ---
+
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  priceUSD    Decimal  @db.Decimal(10, 2)
+  previewUrl  String   // Image of the product
+  r2Key       String   // Secure key in Cloudflare R2
+  isAvailable Boolean  @default(true)
+  orders      Order[]
+  access      AssetAccess[]
+}
+
+enum OrderStatus {
+  PENDING      // User started checkout
+  PROCESSING   // MoonPay confirmed card, waiting for BVNK
+  COMPLETED    // Funds arrived at BVNK
+  FAILED       // Card declined or network error
+  REFUNDED     // Admin issued a manual refund
+}
+
+model Order {
+  id              String          @id @default(cuid())
+  userId          String
+  productId       String
+  amount          Decimal         @db.Decimal(10, 2)
+  status          OrderStatus     @default(PENDING)
+  
+  // Tracking the "Hops"
+  moonpayId       String?         @unique // MoonPay's session ID
+  bvnkTxHash      String?         @unique // Blockchain hash from BVNK
+  
+  user            User            @relation(fields: [userId], references: [id])
+  product         Product         @relation(fields: [productId], references: [id])
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  @@index([moonpayId])
+}
+
+// Edge Case: Prevents duplicate access and handles "Library" logic
+model AssetAccess {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  grantedAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id])
+
+  @@unique([userId, productId])
+}
