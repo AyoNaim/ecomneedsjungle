@@ -80,15 +80,14 @@ model Order {
   status          OrderStatus     @default(PENDING)
   
   // Tracking the "Hops"
-  moonpayId       String?         @unique // MoonPay's session ID
-  bvnkTxHash      String?         @unique // Blockchain hash from BVNK
+  crossmintId       String?         @unique // MoonPay's session ID
   
   user            User            @relation(fields: [userId], references: [id])
   product         Product         @relation(fields: [productId], references: [id])
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
-  @@index([moonpayId])
+  @@index([crossmintId])
 }
 
 // Edge Case: Prevents duplicate access and handles "Library" logic

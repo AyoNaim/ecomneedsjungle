@@ -1,10 +1,13 @@
-import CrossmintPayButton from "@/components/CheckoutPage";
-import CrossmintPage from "@/components/CrossmintPage";
 
-export default function Checkout() {
+import CrossmintPayButton from "@/components/checkout";
+import ProductDescription from "@/components/ProductDescription";
+import ProductPreview from "@/components/ProductPreview";
+import UnifiedCheckout from "@/components/UnifiedCheckout";
+
+export default function Page() {
   return (
     <div>
-      <CrossmintPage />
+      <UnifiedCheckout />
     </div>
   );
 }
