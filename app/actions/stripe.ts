@@ -3,6 +3,7 @@
 import { stripe } from "@/lib/stripe";
 import { headers } from "next/headers";
 import { createClient } from "@supabase/supabase-js";
+import { prisma } from "@/lib/prisma";
 
 // Initialize Supabase inside the Server Action for secure data fetching
 const supabase = createClient(
@@ -19,14 +20,14 @@ export async function fetchClientSecret(productId: string, quantity: number) {
 
   // 1. Fetch the official product data from Supabase
   // We do this on the server so users can't manipulate the price in the browser
-  const { data: product, error } = await supabase
-    .from("products")
-    .select("*")
-    .eq("id", productId)
-    .single();
 
-  if (error || !product) {
-    console.error("Supabase error:", error);
+  const product = await prisma.product.findUnique({
+    where : {
+      id: productId
+    }
+  })
+
+  if (!product) {
     throw new Error("Could not find product in database.");
   }
 
@@ -38,15 +39,15 @@ export async function fetchClientSecret(productId: string, quantity: number) {
         price_data: {
           currency: "NGN",
           product_data: {
-            name: product.name,
+            name: product.title,
             images:
-              product.images && product.images.length > 0
-                ? [product.images[0]]
+              product.previewUrl && product.previewUrl.length > 0
+                ? [product.previewUrl[0]]
                 : [],
             description: product.description || "",
           },
           // unit_amount is in the smallest currency unit (kobo for NGN, cents for USD)
-          unit_amount: Math.round(Number(product.price) * 100),
+          unit_amount: Math.round(Number(product.priceUSD) * 100),
         },
         quantity: quantity,
       },

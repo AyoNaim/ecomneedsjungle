@@ -66,8 +66,8 @@ model Product {
 
 enum OrderStatus {
   PENDING      // User started checkout
-  PROCESSING   // MoonPay confirmed card, waiting for BVNK
-  COMPLETED    // Funds arrived at BVNK
+  PROCESSING   // MoonPay confirmed card, waiting for STRIPE
+  COMPLETED    // Funds arrived at STRIPE
   FAILED       // Card declined or network error
   REFUNDED     // Admin issued a manual refund
 }
@@ -80,7 +80,7 @@ model Order {
   status          OrderStatus     @default(PENDING)
   
   // Tracking the "Hops"
-  crossmintId       String?         @unique // MoonPay's session ID
+  crossmintId       String?         @unique // crossmint's session ID
   
   user            User            @relation(fields: [userId], references: [id])
   product         Product         @relation(fields: [productId], references: [id])
