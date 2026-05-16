@@ -4,7 +4,7 @@ export async function POST() {
     const response = await fetch("https://staging.crossmint.com/api/2022-06-09/orders", {
         method: "POST",
         headers: {
-            "X-API-KEY": process.env.CROSSMINT_SERVER_API_KEY!, // Your SK_STAGING key
+            "X-API-KEY": process.env.CROSSMINT_SERVER_API_KEY!,
             "Content-Type": "application/json",
         },
         body: JSON.stringify({

@@ -1,0 +1,85 @@
+// auth.config.ts
+import type { NextAuthConfig } from "next-auth";
+
+export const authConfig = {
+  pages: {
+    signIn: "/login",
+  },
+  session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      // 1. Initial Sign-In (Fired once when user successfully authenticates)
+      if (user) {
+        token.id = user.id;
+        token.isOnboarded = (user as any).isOnboarded ?? false;
+        token.email = user.email;
+        // Google provides user.image automatically. Magic links will be null/undefined.
+        token.image = user.image ?? null; 
+      }
+
+      // 2. Dynamic Session Updates (Fired when you call update() on the client)
+      if (trigger === "update" && session) {
+        // Handle both nested session.user or direct session object structures safely
+        const newSessionData = session.user ? session.user : session;
+        
+        if (typeof newSessionData.isOnboarded !== "undefined") token.isOnboarded = newSessionData.isOnboarded;
+        if (newSessionData.image) token.image = newSessionData.image;
+        if (newSessionData.name) token.name = newSessionData.name;
+      }
+
+      return token;
+    },
+
+    async session({ session, token }) {
+      // Expose the server-side JWT token fields to the Client & Server Components
+      if (session.user) {
+        session.user.id = token.id as string;
+        (session.user as any).isOnboarded = token.isOnboarded as boolean;
+        session.user.email = token.email as string;
+        session.user.image = token.image as string | null;
+      }
+      return session; // 👈 CRITICAL: Fixed the missing return statement
+    },
+
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isOnboarded = (auth?.user as any)?.isOnboarded;
+      const { pathname } = nextUrl;
+
+      const isOnboardingRoute = pathname.startsWith("/onboarding");
+      const isLoginRoute = pathname.startsWith("/login");
+      
+      const isProtectedRoute = 
+        pathname.startsWith("/dashboard") || 
+        pathname.startsWith("/checkout") ||
+        pathname.startsWith("/settings");
+
+      // --- AUTHENTICATION & ONBOARDING ROUTING LOGIC ---
+
+      // Scenario A: User is logged in but HAS NOT completed onboarding
+      if (isLoggedIn && !isOnboarded) {
+        // Allow them to stay on the onboarding page to complete their profile
+        if (isOnboardingRoute) return true;
+        // Force-redirect them to onboarding from anywhere else
+        return Response.redirect(new URL("/onboarding", nextUrl));
+      }
+
+      // Scenario B: User is logged in AND completed onboarding
+      if (isLoggedIn && isOnboarded) {
+        // Prevent them from going back to /login or /onboarding out of nowhere
+        if (isLoginRoute || isOnboardingRoute) {
+          return Response.redirect(new URL("/dashboard", nextUrl)); // Change to "/" if your core is the root
+        }
+      }
+
+      // Scenario C: Guarding protected areas from logged-out users
+      if (isProtectedRoute) {
+        if (isLoggedIn) return true;
+        return false; // Automatically triggers Auth.js redirect to /login?callbackUrl=...
+      }
+
+      return true;
+    },
+  },
+  providers: [], // Leave empty here, populated inside core auth.ts
+} satisfies NextAuthConfig;
