@@ -25,17 +25,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       from: "onboarding@resend.dev"
     })
   ],
-  
-  callbacks: {
-    // This attaches the User ID from Supabase to the session object
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
-      }
-      return session;
-    },
-  },
-  pages: {
-    signIn: "/login"
-  }
 });

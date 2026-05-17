@@ -150,7 +150,7 @@ export default function OnboardingPage() {
       <div className="relative w-full max-w-7xl grid grid-cols-1 md:grid-cols-[1fr,minmax(auto,450px)] gap-10 lg:gap-16 items-start">
         
         {/* Left Side: Dynamic Decorative Data Stream (Invisible on Mobile) */}
-        <div className="hidden md:block space-y-3 pt-12 pl-6">
+        <div className="space-y-3 pt-12 pl-6">
           <header className="mb-10">
             <h1 className="text-6xl font-extrabold tracking-tight leading-[0.95] text-zinc-800">
               Merchant <br />
@@ -211,7 +211,7 @@ export default function OnboardingPage() {
               {/* Avatar Preview */}
               <div className="relative h-20 w-20 flex-shrink-0">
                 <img 
-                  src={imagePreview || "./default-avatar.svg"} 
+                  src={imagePreview || "./avatar.svg"} 
                   alt="Preview" 
                   className={`h-full w-full rounded-xl object-cover border-2 transition-all ${isUploading ? 'border-dashed border-emerald-500/50' : 'border-white/10'}`}
                 />
