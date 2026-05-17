@@ -1,0 +1,16 @@
+here's the product model, i need you to help me write a sql command that takes the previous table Contentand replaces
+it with another set of placeholder product data that has all these fields:
+model Product {
+  id          String   @id @default(cuid())
+  title       String
+  description String   @db.Text
+  priceUSD    Decimal  @db.Decimal(10, 2)
+  previewUrl  String   // Image of the product
+  r2Key       String   // Secure key in Cloudflare R2
+  isAvailable Boolean  @default(true)
+  orders      Order[]
+  access      AssetAccess[]
+}
+
+make sure the products are digital products such as shopify theme, wordpress themes,
+AI SEO engine blueprint, stuffs like that and also make sure this new data replaces the old

@@ -18,11 +18,53 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     Google({
       clientId: process.env.AUTH_GOOGLE_ID,
       clientSecret: process.env.AUTH_GOOGLE_SECRET,
-      allowDangerousEmailAccountLinking: true
+      allowDangerousEmailAccountLinking: true,
+      authorization: {
+        params: {
+          prompt: 'select_account',
+          access_type: 'offline',
+          response_type: 'code'
+        }
+      },
     }),
     Resend({
       apiKey: process.env.AUTH_RESEND_KEY,
       from: "onboarding@resend.dev"
     })
   ],
+  callbacks: {
+    ...authConfig.callbacks,
+    async signIn({ account, user, profile }) {
+      if(account?.provider === 'google' && profile?.picture && user.email) {
+
+          // 1. Extract the raw image URL from the Google profile payload
+          let highResAvatar = profile.picture;
+
+          // 2. PREMIUM UPGRADE REGEX: Replace =s96-c, =s32, etc., with =s500-c for crisp rendering
+          // This looks for '=s' followed by digits and optional cropping configuration at the end of the URL
+          if (highResAvatar.includes('=s')) {
+            highResAvatar = highResAvatar.replace(/=s\d+(-\w)?$/, '=s500-c');
+          } else if (highResAvatar.includes('/s96-c/')) {
+            // Fallback for an older alternative URL style format Google sometimes uses
+            highResAvatar = highResAvatar.replace('/s96-c/', '/s500-c/');
+          }
+
+        const existingUser = await prisma.user.findUnique({
+          where: {
+            email: user.email
+          }
+        })
+
+        if (existingUser && !existingUser.image) {
+          await prisma.user.update({
+            where: { id: existingUser.id},
+            data: {
+              image: highResAvatar
+            }
+          })
+        }
+      }
+      return true
+    }
+  }
 });

@@ -1,10 +1,10 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Fingerprint, UploadCloud, Store, UserCheck, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Fingerprint, UploadCloud, Store, UserCheck, CheckCircle2, Globe } from "lucide-react";
 
 // Constraints defined by user requirement
 const MAX_FILE_SIZE_KB = 50;
@@ -12,12 +12,12 @@ const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_KB * 1024;
 const ALLOWED_TYPES = ["image/jpeg", "image/jpg", "image/png"];
 
 export default function OnboardingPage() {
-  const { data: session, update } = useSession();
+  const { data: session, status, update } = useSession();
   const router = useRouter();
 
   // Form State
   const [name, setName] = useState("");
-  const [imagePreview, setImagePreview] = useState<string | null>(session?.user?.image || null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [base64Image, setBase64Image] = useState<string | null>(null);
   
   // UI State
@@ -26,6 +26,21 @@ export default function OnboardingPage() {
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [stepComplete, setStepComplete] = useState(false);
+
+  // --- SENIOR TOUCH: Catch Session Hydration and Pre-populate ---
+  useEffect(() => {
+    if (status === "authenticated" && session?.user) {
+      if (session.user.image && !imagePreview && !base64Image) {
+        setImagePreview(session.user.image);
+      }
+      if (session.user.name && !name) {
+        setName(session.user.name);
+      }
+    }
+  }, [session, status, imagePreview, base64Image, name]);
+
+  // Check if current preview is using the external Google image asset
+  const isGoogleSyncedImage = imagePreview && imagePreview.startsWith("https://");
 
   // --- Human Interaction Handler: File Processing & Validation ---
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,7 +92,7 @@ export default function OnboardingPage() {
       const response = await fetch("/api/user/onboard", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, base64Image }),
+        body: JSON.stringify({ name, base64Image }), // Will pass null if using unmodified Google avatar
       });
 
       if (!response.ok) {
@@ -87,21 +102,18 @@ export default function OnboardingPage() {
 
       const result = await response.json();
 
-      // 2. Dynamic Session Mutation (The Auth.js v5 trick)
-      // This tells the Edge middleware instantly that user is onboarded
+      // 2. Dynamic Session Mutation
       await update({
         user: {
           ...session?.user,
           name: result.user.name,
           image: result.user.image,
-          isOnboarded: true, // 👈 Updates the JWT token in browser
+          isOnboarded: true,
         },
       });
 
-      // 3. UI Success State
       setStepComplete(true);
       
-      // 4. Smooth transition to Dashboard
       setTimeout(() => {
         router.push("/dashboard");
         router.refresh();
@@ -115,7 +127,6 @@ export default function OnboardingPage() {
     }
   };
 
-  // Asymmetric layout decorative variants
   const decorationDataStream = [
     "LOG::USER_INIT [AUTHENTICATED]",
     "SYSTEM::ONBOARDING_CORE v0.9",
@@ -142,14 +153,11 @@ export default function OnboardingPage() {
 
   return (
     <main className="min-h-screen w-full bg-[#030303] flex items-center justify-center p-4 md:p-6 text-white selection:bg-emerald-500/30 overflow-hidden font-sans">
-      
-      {/* Background Micro-Noise */}
       <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] pointer-events-none" />
 
-      {/* Asymmetric Split Layout */}
       <div className="relative w-full max-w-7xl grid grid-cols-1 md:grid-cols-[1fr,minmax(auto,450px)] gap-10 lg:gap-16 items-start">
         
-        {/* Left Side: Dynamic Decorative Data Stream (Invisible on Mobile) */}
+        {/* Left Side: Dynamic Decorative Data Stream */}
         <div className="space-y-3 pt-12 pl-6">
           <header className="mb-10">
             <h1 className="text-6xl font-extrabold tracking-tight leading-[0.95] text-zinc-800">
@@ -179,10 +187,8 @@ export default function OnboardingPage() {
           transition={{duration: 1, ease: [0.22, 1, 0.36, 1]}}
           className="relative bg-zinc-950 border border-white/5 p-10 md:p-14 rounded-[3rem] shadow-2xl space-y-12"
         >
-          {/* Animated Green Corner Accent */}
           <div className="absolute -top-px -right-px h-16 w-16 bg-gradient-to-br from-emerald-500 to-transparent opacity-30 rounded-tr-[3rem] [mask-image:linear-gradient(to_bottom,black,transparent_50%),linear-gradient(to_right,transparent_50%,black)]" />
 
-          {/* Form Header */}
           <header className="space-y-2">
             <div className="flex items-center gap-3 text-emerald-500/80 mb-2">
               <UserCheck className="w-4 h-4" />
@@ -202,39 +208,53 @@ export default function OnboardingPage() {
 
           {/* Part A: The File Dropper */}
           <div className="space-y-4">
-            <label className="block text-[10px] font-mono text-zinc-600 uppercase tracking-widest pl-2">Merchant Icon (JPG/PNG &lt;50KB)</label>
+            <label className="block text-[10px] font-mono text-zinc-600 uppercase tracking-widest pl-2">
+              {isGoogleSyncedImage ? "Avatar Context :: Managed by Google Account" : "Merchant Icon (JPG/PNG <50KB)"}
+            </label>
             <div className="relative group flex items-center gap-6 p-4 bg-black rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-colors duration-500">
               
-              {/* Hidden Standard Input */}
               <input type="file" ref={fileInputRef} onChange={handleFileChange} accept=".jpg, .jpeg, .png" className="hidden"/>
 
-              {/* Avatar Preview */}
+              {/* Avatar Preview Widget */}
               <div className="relative h-20 w-20 flex-shrink-0">
-                <img 
-                  src={imagePreview || "./avatar.svg"} 
-                  alt="Preview" 
-                  className={`h-full w-full rounded-xl object-cover border-2 transition-all ${isUploading ? 'border-dashed border-emerald-500/50' : 'border-white/10'}`}
-                />
+                {imagePreview ? (
+                  <img 
+                    src={imagePreview || "./avatar.svg"} 
+                    alt="Preview" 
+                    className={`h-full w-full rounded-xl object-cover border-2 transition-all ${isUploading ? 'border-dashed border-emerald-500/50' : 'border-white/10'}`}
+                  />
+                ) : (
+                  <div className="h-full w-full rounded-xl border border-dashed border-white/10 flex items-center justify-center bg-zinc-900 text-zinc-700 text-[10px] font-mono uppercase">
+                    Void
+                  </div>
+                )}
                 {isUploading && <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center font-mono text-[9px] text-emerald-500 animate-pulse">Reading...</div>}
               </div>
 
-              {/* Custom Dropper Button */}
-              <div className="flex-grow space-y-1">
+              {/* Custom Selector Logic */}
+              <div className="flex-grow space-y-1.5">
                 <button 
                   type="button" 
                   onClick={() => fileInputRef.current?.click()}
                   className="bg-zinc-900 text-white text-xs font-medium px-5 py-3 rounded-lg flex items-center gap-2.5 group-hover:bg-zinc-800 transition-all active:scale-95"
                 >
                   <UploadCloud className="w-4 h-4 text-emerald-500"/>
-                  Select Image Data
+                  {isGoogleSyncedImage ? "Replace Image" : "Select Image Data"}
                 </button>
-                <p className="text-[10px] text-zinc-700 font-mono pl-1">Binary size limit: 50KB</p>
+                
+                {isGoogleSyncedImage ? (
+                  <div className="flex items-center gap-1.5 text-[9px] font-mono text-emerald-500/70 pl-1">
+                    <Globe className="w-3 h-3" />
+                    <span>External asset link verified</span>
+                  </div>
+                ) : (
+                  <p className="text-[10px] text-zinc-700 font-mono pl-1">Binary size limit: 50KB</p>
+                )}
               </div>
 
-              {/* E2E Active Decoration */}
               <div className="absolute -bottom-6 right-6">
                 <motion.div animate={{rotate: [0, 360, 0]}} transition={{repeat: Infinity, duration: 10, ease: "linear"}} className="text-zinc-900">
-                  <Fingerprint strokeWidth={0.5} className="h-10 h-10"/>
+                  <Fingerprint strokeWidth={0.5} className="w-10 h-10"/>
                 </motion.div>
               </div>
             </div>
@@ -242,8 +262,6 @@ export default function OnboardingPage() {
 
           {/* Part B: The Name Input */}
           <div className="relative space-y-4 group">
-            
-            {/* The "Asymmetric label" - only visible when something is typed */}
             <AnimatePresence>
               {name && (
                 <motion.label 
@@ -262,7 +280,7 @@ export default function OnboardingPage() {
                 required
                 value={name}
                 minLength={2}
-                placeholder={name ? "" : "Define Merchant Alias"} // Acts as label until typed
+                placeholder="Define Merchant Alias"
                 className="w-full bg-black border border-white/5 rounded-2xl py-5 pl-14 pr-6 text-lg font-bold text-white placeholder:text-zinc-800 focus:outline-none focus:ring-1 focus:ring-emerald-500/50 transition-all duration-300"
                 onChange={(e) => setName(e.target.value)}
               />
@@ -286,9 +304,7 @@ export default function OnboardingPage() {
                 <ArrowRight className="relative z-10 w-5 h-5 group-hover:translate-x-1.5 transition-transform" />
               </>
             )}
-            
-            {/* White to Mint hover glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-white to-mint-100 opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="absolute inset-0 bg-gradient-to-r from-white to-neutral-200 opacity-0 group-hover:opacity-100 transition-opacity" />
           </button>
         </motion.form>
       </div>

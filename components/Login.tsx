@@ -88,7 +88,7 @@ export default function LoginPage() {
 
             {/* Google Auth Button */}
             <button
-              onClick={() => signIn("google", { callbackUrl: "/" })}
+              onClick={() => signIn("google", { callbackUrl: "/dashboard" })}
               className="w-full bg-transparent border border-white/5 text-zinc-300 py-4 rounded-2xl flex items-center justify-center gap-3 hover:bg-white/5 hover:text-white transition-all duration-300 font-medium"
             >
             <svg 

@@ -10,6 +10,7 @@ import {
   ChevronRight,
   Info
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 type PaymentMethod = "card" | "transfer";
 
@@ -47,6 +48,11 @@ export default function ProductDescription({
   const handleMethodSelect = (method: PaymentMethod) => {
     setSelectedMethod(method);
     onMethodChange(method);
+  };
+
+  const router = useRouter();
+  const handleBuyNow = () => {
+    selectedMethod === 'card' ? router.push('/card-purchase') : router.push('/payment')
   };
 
   return (
@@ -118,7 +124,7 @@ export default function ProductDescription({
       {/* Action Buttons */}
       <div className="space-y-3">
         <button
-          onClick={onBuyNow}
+          onClick={handleBuyNow}
           className="w-full relative overflow-hidden group/btn bg-white text-black font-bold py-4 rounded-2xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
         >
           <span className="relative z-10">Initialize Purchase</span>

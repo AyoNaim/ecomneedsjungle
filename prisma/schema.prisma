@@ -21,6 +21,7 @@ model User {
   sessions      Session[]
   orders        Order[]
   ownedAssets   AssetAccess[]
+  cartItems     CartItem[]
   createdAt     DateTime        @default(now())
 }
 
@@ -71,6 +72,20 @@ model Product {
   isAvailable Boolean  @default(true)
   orders      Order[]
   access      AssetAccess[]
+  cartItems   CartItem[]
+}
+
+model CartItem {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, productId]) 
 }
 
 enum OrderStatus {

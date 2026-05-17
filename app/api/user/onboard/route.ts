@@ -24,7 +24,7 @@ export async function POST(req: Request) {
       return new NextResponse("Payload terminal: Image data too dense (>50KB).", { status: 413 });
     }
 
-    if (!base64Image || base64Image === "") {
+    if ((!base64Image || base64Image === "") && !session.user.image) {
       return new NextResponse("Payload terminal: No Image data provided.", { status: 413 });
     }
 
