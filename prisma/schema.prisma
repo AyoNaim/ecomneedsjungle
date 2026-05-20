@@ -23,6 +23,7 @@ model User {
   ownedAssets   AssetAccess[]
   cartItems     CartItem[]
   createdAt     DateTime        @default(now())
+  stripeCustomerId String?       @unique
 }
 
 model Account {

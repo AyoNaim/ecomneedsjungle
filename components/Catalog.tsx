@@ -1,7 +1,3 @@
-hey, lets improve the UI of this catalog page, it should look more cyberpunk-ish
-and we should add more features like some footer that has a unique premium minimalistic style,
-return everything else as it is/was, make sure all the functiioanlities are still working and return the
-full, corrected, complete and clean code: 
 "use client";
 
 import { useEffect, useState } from "react";
