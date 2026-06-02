@@ -27,7 +27,6 @@ if (event?.type === "checkout.session.completed") {
         productId: session.metadata.productId,
         amount: session.amount_total / 100,
         status: "COMPLETED",
-        paymentMethod: "STRIPE",
       },
     });
     
