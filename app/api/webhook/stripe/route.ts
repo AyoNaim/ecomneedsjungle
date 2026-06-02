@@ -15,7 +15,8 @@ export async function POST(req: Request) {
                 process.env.STRIPE_WEBHOOK_SECRET!
             )
     } catch (error: any) {
-        NextResponse.json(`Webhook Error: ${error.message}`, { status: 400 })
+      // the return line would stop database execution
+        return NextResponse.json(`Webhook Error: ${error.message}`, { status: 400 })
     }
 
     const session = event?.data.object as any;
