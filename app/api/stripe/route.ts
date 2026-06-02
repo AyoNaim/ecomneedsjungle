@@ -1,4 +1,8 @@
-export async function POST(amount: string) {
+import { request } from "http";
+import { NextRequest } from "next/server";
+
+export async function POST(request: NextRequest) {
+  const { amount } = await request.json();
   const apiKey = process.env.CROSS_MINT_SERVER_KEY;
 
   if (!apiKey) {

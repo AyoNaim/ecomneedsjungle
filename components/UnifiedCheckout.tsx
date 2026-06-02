@@ -94,7 +94,7 @@ function CheckoutCore() {
 
       if (data.order?.orderId && data.clientSecret) {
         // Route to success/processing page with data
-        router.push(`/processing?order=${data.order.orderId}`);
+        router.push(`/crossmintcheckout?order=${data.order.orderId}`);
       } else {
         throw new Error("API response missing validation keys.");
       }
