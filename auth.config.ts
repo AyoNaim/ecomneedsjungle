@@ -68,7 +68,7 @@ export const authConfig = {
       if (isLoggedIn && isOnboarded) {
         // Prevent them from going back to /login or /onboarding out of nowhere
         if (isLoginRoute || isOnboardingRoute) {
-          return Response.redirect(new URL("/dashboard", nextUrl)); // Change to "/" if your core is the root
+          return Response.redirect(new URL("/catalog", nextUrl)); // Change to "/" if your core is the root
         }
       }
 
