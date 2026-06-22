@@ -1,7 +1,7 @@
 import AssetVaultAndCTA from "@/components/AssetVaultAndCTA";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
-import Image from "next/image";
+import EcosystemMatrix from "@/components/EcosystemMatrix"
 
 export default function Home() {
   return (
@@ -9,6 +9,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <AssetVaultAndCTA/>
+      <EcosystemMatrix />
     </div>
   );
 }
