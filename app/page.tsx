@@ -2,6 +2,7 @@ import AssetVaultAndCTA from "@/components/AssetVaultAndCTA";
 import Hero from "@/components/Hero";
 import Navbar from "@/components/Navbar";
 import EcosystemMatrix from "@/components/EcosystemMatrix"
+import ArtifactAcquisitionEngine from "@/components/ArtifactAcquisitionEngine";
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <AssetVaultAndCTA/>
       <EcosystemMatrix />
+      <ArtifactAcquisitionEngine />
     </div>
   );
 }

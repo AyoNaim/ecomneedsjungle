@@ -1,8 +1,5 @@
-lets make sure to remember we are designing and developing a website that
-sells digital assets like wordpress themes, react UI kits, and all that.
-so what other sections would you think we need to add after navbar and hero?
-a glimpse of what we sell, some call to action component, lets make sure its a 
-component that would adequately fit the type of stuff this website sells which are digital items.
-lets heavily animate it, lets use scroll animations as we go down, the elements of this new section
-should show up when users scroll down the page, they should not show up at the same time and they should disappear when 
-the user scroll up. whatever section bests fits here after the hero, lets create it
+hey, so the next section we are gonna work on is going to be focused on what the website currently does which it
+selling digital assets. we are going to design a world class section with the greatest UI/UX we had done yet, it has to be mind boggling.
+The best we had done yet, we arent builiding another hroizontal product showcase, what we are doing is builiding a section that complements the above stuffs we had done. 
+A highly cyberpunkish, heavily and highly animated (framer motion), we are even going to be animating even the subtletiest elements and events that 
+shows the developer is so detail oriented and at the same time, great at UI
