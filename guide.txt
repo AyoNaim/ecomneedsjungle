@@ -1,5 +1,4 @@
-hey, so the next section we are gonna work on is going to be focused on what the website currently does which it
-selling digital assets. we are going to design a world class section with the greatest UI/UX we had done yet, it has to be mind boggling.
-The best we had done yet, we arent builiding another hroizontal product showcase, what we are doing is builiding a section that complements the above stuffs we had done. 
-A highly cyberpunkish, heavily and highly animated (framer motion), we are even going to be animating even the subtletiest elements and events that 
-shows the developer is so detail oriented and at the same time, great at UI
+you are still going to take me through exactly how you made these sophisticated designs, right now, we need to 
+start with a little minimalistic page that would start the round off of this whole landing page so we can finally finish.
+this section should be high contrast, cyberpunk kinda website section that starts round off od the whole page.
+It must be highly animated (framer motion), detail oriented, premium section with contents that would be best appropriate for this section.
