@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import EcosystemMatrix from "@/components/EcosystemMatrix"
 import ArtifactAcquisitionEngine from "@/components/ArtifactAcquisitionEngine";
 import DirectiveGateway from "@/components/DirectiveGateway";
+import SystemFooter from "@/components/SystemFooter";
 
 export default function Home() {
   return (
@@ -14,6 +15,7 @@ export default function Home() {
       <EcosystemMatrix />
       <ArtifactAcquisitionEngine />
       <DirectiveGateway />
+      <SystemFooter />
     </div>
   );
 }
