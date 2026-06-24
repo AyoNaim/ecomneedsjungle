@@ -6,6 +6,9 @@ import {
   Terminal, ShieldAlert, Users, Box, ListOrdered, Plus, 
   Trash2, AlertCircle, CheckCircle2, Cpu, Activity, LogOut, Loader2, AlertTriangle
 } from 'lucide-react';
+import { useSession } from 'next-auth/react';
+import { data } from 'framer-motion/client';
+import { useRouter } from 'next/navigation';
 
 // --- Types ---
 type ActionType = 'DELETE_PRODUCT' | 'TOGGLE_USER' | null;
@@ -21,7 +24,9 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'products' | 'users' | 'ledger'>('products');
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+  const {data: session, status} = useSession();
+  const router = useRouter();
+
   // Dynamic State
   const [products, setProducts] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
@@ -39,6 +44,23 @@ export default function AdminDashboard() {
     targetId: '',
     targetDisplayInfo: ''
   });
+
+  // --- boot unauthenticated users ---
+  useEffect(() => {
+    if (status === 'unauthenticated' || (session && (session.user as any).role !== 'ADMIN')) {
+      router.push('/')
+    };
+  }, [status, session, router])
+
+
+// --- handle loading states ---
+if (status === 'loading' || !session ||(session.user as any).role !== "ADMIN") {
+  return (
+    <div className="min-h-screen bg-black text-red-500 flex items-center justify-center font-mono text-sm uppercase tracking-widest">
+        <Loader2 className="animate-spin mr-3" /> Verifying Credentials Matrix...
+    </div>
+  )
+}
 
   // --- Fetch Backend Data ---
   useEffect(() => {

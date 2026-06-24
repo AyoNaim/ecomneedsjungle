@@ -11,6 +11,7 @@ export const authConfig = {
       // 1. Initial Sign-In (Fired once when user successfully authenticates)
       if (user) {
         token.id = user.id;
+        token.role = (user as any).role;
         token.isOnboarded = (user as any).isOnboarded ?? false;
         token.email = user.email;
         // Google provides user.image automatically. Magic links will be null/undefined.
@@ -25,6 +26,7 @@ export const authConfig = {
         if (typeof newSessionData.isOnboarded !== "undefined") token.isOnboarded = newSessionData.isOnboarded;
         if (newSessionData.image) token.image = newSessionData.image;
         if (newSessionData.name) token.name = newSessionData.name;
+        if (newSessionData.token) token.role = newSessionData.token;
       }
 
       return token;
@@ -37,6 +39,7 @@ export const authConfig = {
         (session.user as any).isOnboarded = token.isOnboarded as boolean;
         session.user.email = token.email as string;
         session.user.image = token.image as string | null;
+        (session.user as any).role = token.role
       }
       return session; // 👈 CRITICAL: Fixed the missing return statement
     },
@@ -44,11 +47,15 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnboarded = (auth?.user as any)?.isOnboarded;
+      const isAdmin = (auth?.user as any).role === "ADMIN";
       const { pathname } = nextUrl;
 
       const isOnboardingRoute = pathname.startsWith("/onboarding");
       const isLoginRoute = pathname.startsWith("/login");
       
+      const isAdminRoute = pathname.startsWith("/admin");
+      const isAdminApiRoute = pathname.startsWith("/api/admin");
+
       const isProtectedRoute = 
         pathname.startsWith("/dashboard") || 
         pathname.startsWith("/checkout") ||
@@ -76,6 +83,20 @@ export const authConfig = {
       if (isProtectedRoute) {
         if (isLoggedIn) return true;
         return false; // Automatically triggers Auth.js redirect to /login?callbackUrl=...
+      }
+
+      //If attempting to breach administrative vectors
+      if (!isAdmin) {
+        if (!isLoggedIn) return false;
+        if (isAdminRoute) {
+          return Response.redirect(new URL("/", nextUrl))
+        }
+        if (isAdminApiRoute) {
+          return Response.json(
+            {error: "ACCESS DENIED // INSUFFICIENT CLEARANCE"},
+            {status: 403}
+          )
+        }
       }
 
       return true;

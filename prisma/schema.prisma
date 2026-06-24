@@ -10,12 +10,18 @@ datasource db {
 
 // --- AUTH.JS V5 MODELS ---
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id            String          @id @default(cuid())
   name          String?
   email         String          @unique
   emailVerified DateTime?
   isOnboarded   Boolean         @default(false)
+  role          Role            @default(USER)
   image         String?
   accounts      Account[]
   sessions      Session[]

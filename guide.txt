@@ -1,265 +1,110 @@
-few more things we need to add, before any risky action like suspending/blocking a user or deleting an item,
-a cyberpunk styled modal (little modal) should popup to confirm the admin's action.
-next thing is we need to swap out the mock data we are adding to the page and instead add a real logic
-that adds a product to the database (title, price and description being the main fields, make sure to include the description field in the admin add product UI)
-return the full corrected and complete code
-'use client';
+I wrote this code in modification to include the admin authentication and authorization, but only the 
+useEffect guard clauses i used in the admin pages are actually working, when i commented them out, this didnt 
+work, why is that, how can we fix this without affecting other already working underlying features:
+// auth.config.ts
+import type { NextAuthConfig } from "next-auth";
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Terminal, ShieldAlert, Users, Box, ListOrdered, Plus, 
-  Trash2, AlertCircle, CheckCircle2, Cpu, Activity, LogOut, Loader2 
-} from 'lucide-react';
-
-export default function AdminDashboard() {
-  const [activeTab, setActiveTab] = useState<'products' | 'users' | 'ledger'>('products');
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Dynamic State
-  const [products, setProducts] = useState<any[]>([]);
-  const [users, setUsers] = useState<any[]>([]);
-  const [ledger, setLedger] = useState<any[]>([]);
-  
-  // Form State
-  const [newTitle, setNewTitle] = useState('');
-  const [newDescription, setNewDescription] = useState('');
-  const [newPrice, setNewPrice] = useState('');
-
-  // --- Fetch Backend Data ---
-  useEffect(() => {
-    const fetchTelemetry = async () => {
-      try {
-        const res = await fetch('/api/admin/dashboard');
-        const data = await res.json();
-        if (data) {
-          setProducts(data.products);
-          setUsers(data.users);
-          setLedger(data.ledger);
-        }
-      } catch (err) {
-        console.error("System Failure:", err);
-      } finally {
-        setIsLoading(false);
+export const authConfig = {
+  pages: {
+    signIn: "/login",
+  },
+  session: { strategy: "jwt" },
+  callbacks: {
+    async jwt({ token, user, trigger, session }) {
+      // 1. Initial Sign-In (Fired once when user successfully authenticates)
+      if (user) {
+        token.id = user.id;
+        token.role = (user as any).role;
+        token.isOnboarded = (user as any).isOnboarded ?? false;
+        token.email = user.email;
+        // Google provides user.image automatically. Magic links will be null/undefined.
+        token.image = user.image ?? null; 
       }
-    };
-    fetchTelemetry();
-  }, []);
 
-  // --- Mock API Handlers (Connect these to real POST/DELETE routes later) ---
-  const handleAddProduct = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newTitle || !newPrice) return;
-    
-    // Optimistic UI update
-    const newProduct = { 
-      id: `temp_${Date.now()}`, 
-      title: newTitle, 
-      description: newDescription,
-      priceUSD: newPrice, 
-      isAvailable: true 
-    };
-    
-    setProducts([newProduct, ...products]);
-    setNewTitle('');
-    setNewDescription('');
-    setNewPrice('');
-    
-    // TODO: Await POST request to /api/products here
-  };
-
-  const handleDeleteProduct = (id: string) => {
-    setProducts(products.filter(p => p.id !== id));
-    // TODO: Await DELETE request to /api/products/[id] here
-  };
-
-  const handleToggleUserStatus = (id: string) => {
-    setUsers(users.map(u => {
-      if (u.id === id) {
-        return { ...u, status: u.status === 'ACTIVE' ? 'SUSPENDED' : 'ACTIVE' };
-      }
-      return u;
-    }));
-    // TODO: Await PATCH request to toggle isBlocked on User model here
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-black text-emerald-500 flex items-center justify-center font-mono text-sm uppercase tracking-widest">
-        <Loader2 className="animate-spin mr-3" /> Establishing Secure Connection...
-      </div>
-    );
-  }
-
-  return (
-    <div className="min-h-screen bg-black text-white font-mono flex flex-col selection:bg-white selection:text-black relative overflow-hidden">
-      
-      {/* Background Grid Accent */}
-      <div className="absolute inset-0 z-0 opacity-10 pointer-events-none" 
-           style={{ backgroundImage: 'linear-gradient(to right, #333 1px, transparent 1px), linear-gradient(to bottom, #333 1px, transparent 1px)', backgroundSize: '4rem 4rem' }} 
-      />
-
-      {/* 1. TOP NAVBAR / TERMINAL HEADER */}
-      <header className="relative z-10 border-b border-neutral-900 bg-neutral-950/40 backdrop-blur-md px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center gap-3">
-          <Terminal size={18} className="text-white animate-pulse" />
-          <h1 className="text-xs tracking-widest uppercase font-bold">Admin_Core // Superuser Panel</h1>
-        </div>
-        <div className="flex items-center gap-6 text-[10px] text-neutral-500 uppercase">
-          <span className="flex items-center gap-2"><Cpu size={12} /> Node: Secure</span>
-          <span className="flex items-center gap-2"><Activity size={12} className="text-emerald-500" /> System: Online</span>
-          <button className="flex items-center gap-2 hover:text-white transition-colors cursor-pointer">
-            <LogOut size={12} /> Force Terminate
-          </button>
-        </div>
-      </header>
-
-      {/* Main Dashboard Layout */}
-      <div className="flex-grow max-w-7xl w-full mx-auto px-6 py-12 grid grid-cols-1 lg:grid-cols-12 gap-8 relative z-10 items-start">
+      // 2. Dynamic Session Updates (Fired when you call update() on the client)
+      if (trigger === "update" && session) {
+        // Handle both nested session.user or direct session object structures safely
+        const newSessionData = session.user ? session.user : session;
         
-        {/* 2. SUB-ROUTING NAVIGATION */}
-        <aside className="lg:col-span-3 flex flex-col gap-2 border border-neutral-900 bg-neutral-950 p-2">
-          <button onClick={() => setActiveTab('products')} className={`w-full text-left p-4 text-xs uppercase tracking-wider flex items-center justify-between transition-all border ${activeTab === 'products' ? 'bg-white text-black border-white font-bold' : 'bg-transparent text-neutral-500 border-transparent hover:border-neutral-900'}`}>
-            <span className="flex items-center gap-3"><Box size={14} /> Catalog Control</span>
-            {activeTab === 'products' && <span className="w-1.5 h-1.5 bg-black rounded-full" />}
-          </button>
+        if (typeof newSessionData.isOnboarded !== "undefined") token.isOnboarded = newSessionData.isOnboarded;
+        if (newSessionData.image) token.image = newSessionData.image;
+        if (newSessionData.name) token.name = newSessionData.name;
+        if (newSessionData.token) token.role = newSessionData.token;
+      }
 
-          <button onClick={() => setActiveTab('users')} className={`w-full text-left p-4 text-xs uppercase tracking-wider flex items-center justify-between transition-all border ${activeTab === 'users' ? 'bg-white text-black border-white font-bold' : 'bg-transparent text-neutral-500 border-transparent hover:border-neutral-900'}`}>
-            <span className="flex items-center gap-3"><Users size={14} /> Security Ledger</span>
-            {activeTab === 'users' && <span className="w-1.5 h-1.5 bg-black rounded-full" />}
-          </button>
+      return token;
+    },
 
-          <button onClick={() => setActiveTab('ledger')} className={`w-full text-left p-4 text-xs uppercase tracking-wider flex items-center justify-between transition-all border ${activeTab === 'ledger' ? 'bg-white text-black border-white font-bold' : 'bg-transparent text-neutral-500 border-transparent hover:border-neutral-900'}`}>
-            <span className="flex items-center gap-3"><ListOrdered size={14} /> Tx Stream</span>
-            {activeTab === 'ledger' && <span className="w-1.5 h-1.5 bg-black rounded-full" />}
-          </button>
-        </aside>
+    async session({ session, token }) {
+      // Expose the server-side JWT token fields to the Client & Server Components
+      if (session.user) {
+        session.user.id = token.id as string;
+        (session.user as any).isOnboarded = token.isOnboarded as boolean;
+        session.user.email = token.email as string;
+        session.user.image = token.image as string | null;
+        (session.user as any).token = token.role
+      }
+      return session; // 👈 CRITICAL: Fixed the missing return statement
+    },
 
-        {/* 3. DYNAMIC CONTENT WORKSPACE PANELS */}
-        <main className="lg:col-span-9 min-h-[500px]">
-          <AnimatePresence mode="wait">
-            
-            {/* --- TAB 1: PRODUCT CATALOG CONTROL --- */}
-            {activeTab === 'products' && (
-              <motion.div key="products" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div className="md:col-span-1 border border-neutral-900 bg-neutral-950 p-6 flex flex-col justify-between">
-                  <div>
-                    <span className="text-[10px] text-neutral-500 block mb-6 uppercase tracking-widest">// NEW_DEPLOYMENT</span>
-                    <form onSubmit={handleAddProduct} className="space-y-4">
-                      <div>
-                        <label className="block text-[9px] text-neutral-600 uppercase tracking-widest mb-1">Asset Title</label>
-                        <input type="text" value={newTitle} onChange={(e) => setNewTitle(e.target.value)} className="w-full bg-black border border-neutral-900 p-2 text-xs text-white focus:outline-none focus:border-neutral-600" />
-                      </div>
-                      <div>
-                        <label className="block text-[9px] text-neutral-600 uppercase tracking-widest mb-1">Cost (USD)</label>
-                        <input type="number" step="0.01" value={newPrice} onChange={(e) => setNewPrice(e.target.value)} className="w-full bg-black border border-neutral-900 p-2 text-xs text-white focus:outline-none focus:border-neutral-600" />
-                      </div>
-                      <button type="submit" className="w-full bg-white text-black p-3 text-xs uppercase tracking-widest font-bold flex items-center justify-center gap-2 hover:bg-neutral-200 transition-colors">
-                        <Plus size={14} /> Commit Entry
-                      </button>
-                    </form>
-                  </div>
-                  <div className="text-[9px] text-neutral-600 border-t border-neutral-900 pt-4 mt-8">
-                    FILE_UPLOAD_SUPPORT: strictly .pdf, .jpg, .png, .zip
-                  </div>
-                </div>
+    authorized({ auth, request: { nextUrl } }) {
+      const isLoggedIn = !!auth?.user;
+      const isOnboarded = (auth?.user as any)?.isOnboarded;
+      const isAdmin = (auth?.user as any).role === "ADMIN";
+      const { pathname } = nextUrl;
 
-                <div className="md:col-span-2 border border-neutral-900 bg-neutral-950 p-6 flex flex-col gap-4 min-h-[360px] overflow-y-auto max-h-[600px]">
-                  <span className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2">// ACTIVE_REGISTRY</span>
-                  
-                  {products.map((prod) => (
-                    <div key={prod.id} className="flex justify-between items-center border border-neutral-900 p-4 bg-black group hover:border-neutral-700 transition-colors">
-                      <div>
-                        <div className="text-[9px] text-neutral-600 font-mono mb-1">ID: [{prod.id.slice(0,8)}]</div>
-                        <h3 className="text-xs font-bold tracking-tight uppercase">{prod.title}</h3>
-                        <span className="text-[10px] font-mono text-neutral-400 mt-1 block">${Number(prod.priceUSD).toFixed(2)}</span>
-                      </div>
-                      
-                      <div className="flex items-center gap-4">
-                        <span className={`text-[9px] px-2 py-0.5 font-mono uppercase tracking-widest border ${prod.isAvailable ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-neutral-800 text-neutral-400 border-neutral-700'}`}>
-                          {prod.isAvailable ? 'LIVE' : 'OFFLINE'}
-                        </span>
-                        <button onClick={() => handleDeleteProduct(prod.id)} className="text-neutral-600 hover:text-red-500 transition-colors">
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-            {/* --- TAB 2: USER MODERATION --- */}
-            {activeTab === 'users' && (
-              <motion.div key="users" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="border border-neutral-900 bg-neutral-950 p-6 flex flex-col gap-4 max-h-[700px] overflow-y-auto">
-                <span className="text-[10px] text-neutral-500 uppercase tracking-widest mb-4">// REGISTERED_CLIENTS</span>
-                
-                <table className="w-full text-left text-xs border-collapse">
-                  <thead>
-                    <tr className="border-b border-neutral-900 text-[9px] text-neutral-600 uppercase tracking-widest">
-                      <th className="py-3 px-4">User Signature</th>
-                      <th className="py-3 px-4">Acquisitions</th>
-                      <th className="py-3 px-4">Cart Status</th>
-                      <th className="py-3 px-4">Status</th>
-                      <th className="py-3 px-4 text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((u) => (
-                      <tr key={u.id} className="border-b border-neutral-900/40 text-[11px]">
-                        <td className="py-4 px-4 font-mono text-neutral-400 truncate max-w-[150px]" title={u.email}>{u.email}</td>
-                        <td className="py-4 px-4 font-mono text-neutral-400">{u.purchases}</td>
-                        <td className="py-4 px-4 font-mono text-neutral-400">{u.cartItems} Items</td>
-                        <td className="py-4 px-4 font-mono">
-                          <span className={`inline-block px-2 py-0.5 text-[8px] uppercase tracking-widest border ${u.status === 'ACTIVE' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                            {u.status}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4 text-right">
-                          <button onClick={() => handleToggleUserStatus(u.id)} className={`text-[9px] font-mono px-3 py-2 border uppercase tracking-widest transition-colors ${u.status === 'ACTIVE' ? 'border-red-900 bg-red-950/20 text-red-400 hover:bg-red-950' : 'border-emerald-900 bg-emerald-950/20 text-emerald-400 hover:bg-emerald-950'}`}>
-                            {u.status === 'ACTIVE' ? 'Suspend Node' : 'Approve'}
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </motion.div>
-            )}
-
-            {/* --- TAB 3: TRANSACTION LEDGER --- */}
-            {activeTab === 'ledger' && (
-              <motion.div key="ledger" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="border border-neutral-900 bg-neutral-950 p-6 flex flex-col gap-4 max-h-[700px] overflow-y-auto">
-                <span className="text-[10px] text-neutral-500 uppercase tracking-widest mb-4">// ACQUISITIONS_LEDGER</span>
-                
-                <div className="flex flex-col gap-2">
-                  {ledger.map((tx, idx) => (
-                    <div key={idx} className="flex justify-between items-center border border-neutral-900 p-4 bg-black text-xs font-mono group hover:border-neutral-700 transition-colors">
-                      <div>
-                        <span className="text-[8px] text-neutral-600 tracking-wider block mb-1">{tx.tx}</span>
-                        <span className="text-white font-bold">{tx.asset}</span>
-                        <span className="text-neutral-500 block mt-1">Acquired by: {tx.user}</span>
-                      </div>
-                      <div className="flex flex-col items-end gap-2">
-                        <span className={`text-[9px] px-2 py-0.5 uppercase tracking-widest border ${tx.status === 'COMPLETED' ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : tx.status === 'PENDING' ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
-                          {tx.status}
-                        </span>
-                        <span className="text-[9px] text-neutral-500">{new Date(tx.time).toLocaleDateString()}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-
-          </AnimatePresence>
-        </main>
-      </div>
+      const isOnboardingRoute = pathname.startsWith("/onboarding");
+      const isLoginRoute = pathname.startsWith("/login");
       
-      <footer className="relative z-10 border-t border-neutral-900 py-4 px-6 text-[9px] font-mono text-neutral-600 flex justify-between items-center bg-neutral-950/20">
-         <span>STATUS: SECURE LEDGER</span>
-         <span>SECURE SERVER // v4.0x</span>
-      </footer>
-    </div>
-  );
-}
+      const isAdminRoute = pathname.startsWith("/admin");
+      const isAdminApiRoute = pathname.startsWith("/api/admin");
+
+      const isProtectedRoute = 
+        pathname.startsWith("/dashboard") || 
+        pathname.startsWith("/checkout") ||
+        pathname.startsWith("/settings") ||
+        pathname.startsWith("/admin") ||
+        pathname.startsWith("/api/admin");
+
+      // --- AUTHENTICATION & ONBOARDING ROUTING LOGIC ---
+
+      // Scenario A: User is logged in but HAS NOT completed onboarding
+      if (isLoggedIn && !isOnboarded) {
+        // Allow them to stay on the onboarding page to complete their profile
+        if (isOnboardingRoute) return true;
+        // Force-redirect them to onboarding from anywhere else
+        return Response.redirect(new URL("/onboarding", nextUrl));
+      }
+
+      // Scenario B: User is logged in AND completed onboarding
+      if (isLoggedIn && isOnboarded) {
+        // Prevent them from going back to /login or /onboarding out of nowhere
+        if (isLoginRoute || isOnboardingRoute) {
+          return Response.redirect(new URL("/catalog", nextUrl)); // Change to "/" if your core is the root
+        }
+      }
+
+      // Scenario C: Guarding protected areas from logged-out users
+      if (isProtectedRoute) {
+        if (isLoggedIn) return true;
+        return false; // Automatically triggers Auth.js redirect to /login?callbackUrl=...
+      }
+
+      //If attempting to breach administrative vectors
+      if (!isAdmin) {
+        if (isAdminRoute) {
+          return Response.redirect(new URL("/", nextUrl))
+        }
+        if (isAdminApiRoute) {
+          return Response.json(
+            {error: "ACCESS DENIED // INSUFFICIENT CLEARANCE"},
+            {status: 403}
+          )
+        }
+      }
+
+      return true;
+    },
+  },
+  providers: [], // Leave empty here, populated inside core auth.ts
+} satisfies NextAuthConfig;
