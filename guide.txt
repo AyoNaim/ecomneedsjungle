@@ -1,6 +1,10 @@
-I wrote this code in modification to include the admin authentication and authorization, but only the 
-useEffect guard clauses i used in the admin pages are actually working, when i commented them out, this didnt 
-work, why is that, how can we fix this without affecting other already working underlying features:
+some weird stuff with the auth going on here, when i click "disconnect session" to logout, i am redirected to /catalog instead of /login and 
+when i try to go to /login, i am being redirected to /catalog, so that means i am not actually logged out, the handleLogout function does this:
+  const handleLogout = () => {
+    signOut({ callbackUrl: "/login" });
+  };
+
+here's my auth.config.ts: what could be wrong?
 // auth.config.ts
 import type { NextAuthConfig } from "next-auth";
 
@@ -42,7 +46,7 @@ export const authConfig = {
         (session.user as any).isOnboarded = token.isOnboarded as boolean;
         session.user.email = token.email as string;
         session.user.image = token.image as string | null;
-        (session.user as any).token = token.role
+        (session.user as any).role = token.role
       }
       return session; // 👈 CRITICAL: Fixed the missing return statement
     },
@@ -50,7 +54,7 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnboarded = (auth?.user as any)?.isOnboarded;
-      const isAdmin = (auth?.user as any).role === "ADMIN";
+      const isAdmin = (auth?.user as any)?.role === "ADMIN";
       const { pathname } = nextUrl;
 
       const isOnboardingRoute = pathname.startsWith("/onboarding");
@@ -62,9 +66,7 @@ export const authConfig = {
       const isProtectedRoute = 
         pathname.startsWith("/dashboard") || 
         pathname.startsWith("/checkout") ||
-        pathname.startsWith("/settings") ||
-        pathname.startsWith("/admin") ||
-        pathname.startsWith("/api/admin");
+        pathname.startsWith("/settings");
 
       // --- AUTHENTICATION & ONBOARDING ROUTING LOGIC ---
 
@@ -92,6 +94,7 @@ export const authConfig = {
 
       //If attempting to breach administrative vectors
       if (!isAdmin) {
+        if (!isLoggedIn) return false;
         if (isAdminRoute) {
           return Response.redirect(new URL("/", nextUrl))
         }
@@ -108,3 +111,17 @@ export const authConfig = {
   },
   providers: [], // Leave empty here, populated inside core auth.ts
 } satisfies NextAuthConfig;
+
+earlier i got an error when i click "disconnect session":
+Cannot read properties of undefined (reading 'role')
+auth.config.ts (50:43) @ Object.authorized
+
+
+  48 |       const isLoggedIn = !!auth?.user;
+  49 |       const isOnboarded = (auth?.user as any)?.isOnboarded;
+> 50 |       const isAdmin = (auth?.user as any).role === "ADMIN";
+
+it takes me to the /login page and outputs that error, but when i added a:
+ const isAdmin = (auth?.user as any)?.role === "ADMIN";
+
+it takes me to the /catalog page instead, how can we fix this?

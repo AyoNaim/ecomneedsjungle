@@ -52,16 +52,6 @@ export default function AdminDashboard() {
     };
   }, [status, session, router])
 
-
-// --- handle loading states ---
-if (status === 'loading' || !session ||(session.user as any).role !== "ADMIN") {
-  return (
-    <div className="min-h-screen bg-black text-red-500 flex items-center justify-center font-mono text-sm uppercase tracking-widest">
-        <Loader2 className="animate-spin mr-3" /> Verifying Credentials Matrix...
-    </div>
-  )
-}
-
   // --- Fetch Backend Data ---
   useEffect(() => {
     const fetchTelemetry = async () => {
@@ -172,6 +162,15 @@ if (status === 'loading' || !session ||(session.user as any).role !== "ADMIN") {
       </div>
     );
   }
+  
+// --- handle loading states ---
+if (status === 'loading' || !session ||(session.user as any).role !== "ADMIN") {
+  return (
+    <div className="min-h-screen bg-black text-red-500 flex items-center justify-center font-mono text-sm uppercase tracking-widest">
+        <Loader2 className="animate-spin mr-3" /> Verifying Credentials Matrix...
+    </div>
+  )
+}
 
   return (
     <div className="min-h-screen bg-black text-white font-mono flex flex-col selection:bg-white selection:text-black relative overflow-hidden">

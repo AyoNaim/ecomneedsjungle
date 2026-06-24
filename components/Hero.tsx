@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, Variants } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 
 export default function Hero() {
   // Framer Motion variants for staggered revealing
@@ -17,6 +18,7 @@ export default function Hero() {
     show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
   };
 
+  const router = useRouter();
   return (
     <section className="relative w-full h-screen bg-black overflow-hidden flex flex-col justify-center px-6 md:px-12">
       {/* Cyberpunk Grid Background */}
@@ -58,7 +60,7 @@ export default function Hero() {
           </motion.p>
           
           <motion.div variants={item} className="flex gap-4 border border-neutral-800 p-2">
-             <button className="bg-white text-black px-8 py-3 font-mono text-xs uppercase hover:bg-neutral-200 transition-colors">
+             <button className="bg-white text-black px-8 py-3 font-mono text-xs uppercase hover:bg-neutral-200 transition-colors" onClick={() => router.push('/catalog')}>
                Explore Core
              </button>
              <button className="bg-transparent text-white border border-neutral-700 px-8 py-3 font-mono text-xs uppercase hover:bg-neutral-800 transition-colors">
