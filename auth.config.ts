@@ -77,18 +77,18 @@ export const authConfig = {
       }
 
       // --- 3. HIGH SECURITY DOMAIN (ADMIN PERIMETER) ---
-      if (isAdminRoute || isAdminApiRoute) {
-        if (!isLoggedIn) return false; // Boot unauthenticated users to login
+      // if (isAdminRoute || isAdminApiRoute) {
+      //   if (!isLoggedIn) return false; // Boot unauthenticated users to login
         
-        if (!isAdmin) {
-          if (isAdminRoute) return Response.redirect(new URL("/", nextUrl));
-          return Response.json(
-            { error: "ACCESS DENIED // INSUFFICIENT CLEARANCE" },
-            { status: 403 }
-          );
-        }
-        return true; // User is logged in AND is an admin
-      }
+      //   if (!isAdmin) {
+      //     if (isAdminRoute) return Response.redirect(new URL("/", nextUrl));
+      //     return Response.json(
+      //       { error: "ACCESS DENIED // INSUFFICIENT CLEARANCE" },
+      //       { status: 403 }
+      //     );
+      //   }
+      //   return true; // User is logged in AND is an admin
+      // }
 
       // --- 4. STANDARD PROTECTED DOMAIN ---
       if (isProtectedRoute) {

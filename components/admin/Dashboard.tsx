@@ -46,11 +46,11 @@ export default function AdminDashboard() {
   });
 
   // --- boot unauthenticated users ---
-  useEffect(() => {
-    if (status === 'unauthenticated' || (session && (session.user as any).role !== 'ADMIN')) {
-      router.push('/')
-    };
-  }, [status, session, router])
+  // useEffect(() => {
+  //   if (status === 'unauthenticated' || (session && (session.user as any).role !== 'ADMIN')) {
+  //     router.push('/')
+  //   };
+  // }, [status, session, router])
 
   // --- Fetch Backend Data ---
   useEffect(() => {
@@ -164,13 +164,13 @@ export default function AdminDashboard() {
   }
   
 // --- handle loading states ---
-if (status === 'loading' || !session ||(session.user as any).role !== "ADMIN") {
-  return (
-    <div className="min-h-screen bg-black text-red-500 flex items-center justify-center font-mono text-sm uppercase tracking-widest">
-        <Loader2 className="animate-spin mr-3" /> Verifying Credentials Matrix...
-    </div>
-  )
-}
+// if (status === 'loading' || !session ||(session.user as any).role !== "ADMIN") {
+//   return (
+//     <div className="min-h-screen bg-black text-red-500 flex items-center justify-center font-mono text-sm uppercase tracking-widest">
+//         <Loader2 className="animate-spin mr-3" /> Verifying Credentials Matrix...
+//     </div>
+//   )
+// }
 
   return (
     <div className="min-h-screen bg-black text-white font-mono flex flex-col selection:bg-white selection:text-black relative overflow-hidden">
