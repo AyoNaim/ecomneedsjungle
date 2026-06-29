@@ -26,6 +26,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   orders        Order[]
+  transactions  Transaction[]
   ownedAssets   AssetAccess[]
   cartItems     CartItem[]
   createdAt     DateTime        @default(now())
@@ -78,6 +79,7 @@ model Product {
   r2Key       String   // Secure key in Cloudflare R2
   isAvailable Boolean  @default(true)
   orders      Order[]
+  transactions Transaction[]
   access      AssetAccess[]
   cartItems   CartItem[]
 }
@@ -120,6 +122,35 @@ model Order {
 
   @@index([crossmintId])
 }
+
+// Transaction telemetry and data logging
+enum PaymentGateway {
+  PAYSTACK
+  CROSSMINT
+}
+
+model Transaction {
+  id               String            @id @default(cuid())
+  reference        String            @unique // Unique gateway/internal ID
+  userId           String
+  productId        String
+  amount           Decimal           @db.Decimal(10, 2)
+  gateway          PaymentGateway
+  status           OrderStatus @default(PENDING)
+  
+  // 🛡️ Airtight Telemetry & Compliance Fields (Prevents Chargebacks)
+  agreedToTerms    Boolean           @default(false)
+  termsTimestamp   DateTime          // Cryptographic timestamp of clickwrap acceptance
+  userIpAddress    String?           // Helpful for fraud tracing
+  
+  user             User              @relation(fields: [userId], references: [id])
+  product          Product           @relation(fields: [productId], references: [id])
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([reference])
+}
+
 
 // Edge Case: Prevents duplicate access and handles "Library" logic
 model AssetAccess {
