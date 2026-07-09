@@ -122,31 +122,26 @@ function CheckoutCore() {
       // 2. Route dynamically based on the payment protocol chosen
       if (selectedMethod === "crypto") {
         // Only call the Crossmint endpoint if crypto is selected
-        const response = await fetch("/api/crossmint", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: session?.user?.email,
-            consentTimestamp: termsTimestamp,
-            productId: productId,
-          }),
-        });
+        // const response = await fetch("/api/crossmint", {
+        //   method: "POST",
+        //   headers: { "Content-Type": "application/json" },
+        //   body: JSON.stringify({
+        //     email: session?.user?.email,
+        //     consentTimestamp: termsTimestamp,
+        //     productId: productId,
+        //   }),
+        // });
 
-        const data = await response.json();
+        // const data = await response.json();
 
-        if (!response.ok || data.error) {
-          throw new Error(
-            data.message || "Failed to establish secure payment channel"
-          );
-        }
-
-        if (data.order?.orderId && data.clientSecret) {
+        // if (!response.ok || data.error) {
+        //   throw new Error(
+        //     data.message || "Failed to establish secure payment channel"
+        //   );
+        // }
           router.push(
-            `/crossmintcheckout?order=${data.order.orderId}&consent=${termsTimestamp}&product_id=${productId}`
+            `/crossmintcheckout?product_id=${productId}`
           );
-        } else {
-          throw new Error("API response missing validation keys.");
-        }
       } else {
         // If "card" is selected, bypass Crossmint entirely and route straight to Paystack
         router.push(

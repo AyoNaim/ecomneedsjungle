@@ -49,6 +49,8 @@ function CheckoutCore() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMounted, setIsMounted] = useState(false);
+  const [termsTimestamp, setTermsTimestamp] = useState<string | null>(null);
+  
 
   const clientApiKey = process.env.NEXT_PUBLIC_CLIENT_API_KEY || "";
 
@@ -102,7 +104,8 @@ function CheckoutCore() {
         body: JSON.stringify({ 
           email: userEmail,
           productId: product.id,
-          amount: product.priceUSD
+          amount: product.priceUSD,
+          consentTimestamp: termsTimestamp
         }),
       });
 
