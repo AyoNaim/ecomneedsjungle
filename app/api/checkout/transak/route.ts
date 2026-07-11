@@ -15,6 +15,13 @@ export async function POST(request: Request) {
     // 2. Read only the product identifier from the incoming request body
     const { productId } = await request.json();
     
+    if (productId) {
+      console.error("[API_ERROR]: targetId is undefined. Received body:", request.json());
+      return NextResponse.json(
+        { error: 'Payload missing valid tracking identifier (productId).' },
+        { status: 400 }
+      );
+    }
     // 3. Resolve the price securely on the server
     // Alternate Database lookup example:
     const plan = await prisma.product.findUnique({ where: { id: productId } });
