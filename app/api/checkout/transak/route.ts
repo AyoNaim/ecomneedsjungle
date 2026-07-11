@@ -44,11 +44,34 @@ export async function POST(request: Request) {
       ? 'https://api-gateway.transak.com' 
       : 'https://api-gateway-stg.transak.com';
 
+    const tokenResponse = await fetch(`${baseUrl}/partners/api/v2/refresh-token`, {
+      method: 'POST',
+      headers: {
+        'api-secret': process.env.TRANSAK_API_SECRET || '',
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        apiKey: process.env.NEXT_PUBLIC_TRANSAK_API_KEY
+      })
+    });
+
+    const tokenData = await tokenResponse.json();
+
+    if (!tokenResponse.ok) {
+      console.error("TRANSAK TOKEN GENERATION FAILED:", tokenData);
+      return NextResponse.json(
+        { error: 'Failed to authenticate backend with Transak' }, 
+        { status: 401 }
+      );
+    }
+
+    const accessToken = tokenData.data?.accessToken;
+
     // 5. Construct the final payment configuration payload
     const response = await fetch(`${baseUrl}/api/v2/auth/session`, {
       method: 'POST',
       headers: {
-        'access-token': process.env.TRANSAK_PARTNER_ACCESS_TOKEN || '',
+        'access-token': accessToken || '',
         'content-type': 'application/json'
       },
       body: JSON.stringify({
