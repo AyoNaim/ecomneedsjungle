@@ -24,7 +24,6 @@ export async function POST(request: Request) {
       select: {
         id: true,
         title: true,
-        category: true,
         // Assuming your DB stores price as a float or decimal
         priceUSD: true, 
       }
