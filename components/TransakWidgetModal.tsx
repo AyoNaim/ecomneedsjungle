@@ -31,34 +31,55 @@ function TransakCheckoutCore() {
   }, []);
 
   // 2. Fetch Display Metadata for the Summary Screen
-  useEffect(() => {
+useEffect(() => {
+    // Abort early if there is no ID to fetch
     if (!productId) {
       setError("ERR_NO_ASSET_ID: Search parameters missing valid tracking identifier.");
       setIsProductLoading(false);
       return;
     }
 
-    // Fetch the product details just so the user sees what they are buying.
-    // NOTE: The actual price charged is still determined securely by the backend later.
     const fetchProduct = async () => {
+      setIsProductLoading(true);
+      setError(null); // Reset errors on new fetch attempt
+
       try {
-        const res = await fetch(`/api/products/${productId}`);
-        const data = await res.json();
+        const response = await fetch("/api/get-product", {
+          method: "POST", // Must be POST to send a JSON body
+          headers: { 
+            "Content-Type": "application/json" 
+          },
+          body: JSON.stringify({ 
+            productId: productId 
+          }),
+        });
+
+        const data = await response.json();
         
-        if (data.product) {
-          setProduct(data.product);
-        } else {
-          setError(`ERR_ASSET_NOT_FOUND: Registry query for ID ${productId.substring(0,8)}... returned null.`);
+        // Handle HTTP errors returned from the API route (400, 404, 500)
+        if (!response.ok) {
+          throw new Error(data.error || "Failed to retrieve asset data.");
         }
-      } catch (err) {
-        setError("ERR_NETWORK_FAILURE: Unable to establish uplink to registry database.");
+
+        if (data.product) {
+          // Format the display price here if it comes back as a raw number
+          setProduct({
+            ...data.product,
+            displayPrice: Number(data.product.priceUSD).toFixed(2)
+          });
+        } else {
+          throw new Error(`ERR_ASSET_NOT_FOUND: Registry query returned null.`);
+        }
+      } catch (err: any) {
+        setError(err.message || "ERR_NETWORK_FAILURE: Unable to establish uplink to registry database.");
       } finally {
+        // Ensure loading state is dropped whether the request succeeds or fails
         setIsProductLoading(false);
       }
     };
 
     fetchProduct();
-  }, [productId]);
+  }, [productId]); // Re-run if the URL parameter changes
 
   // 3. Initiate Secure Transak Session (Server-Side Resolution)
   const handleInitiateOrder = async () => {
