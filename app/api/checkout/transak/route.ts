@@ -40,11 +40,12 @@ export async function POST(request: Request) {
     }
 
     // Determine target execution environments
-    const isProduction = process.env.NODE_ENV === 'production';
-    const baseUrl = isProduction 
-      ? 'https://api-gateway.transak.com' 
-      : 'https://api-gateway-stg.transak.com';
+    // const isProduction = process.env.NODE_ENV === 'production';
+    // const baseUrl = isProduction 
+    //   ? 'https://api-gateway.transak.com' 
+    //   : 'https://api-gateway-stg.transak.com';
 
+    const baseUrl = 'https://api-gateway-stg.transak.com';
     // 5. Construct the final payment configuration payload
     const response = await fetch(`${baseUrl}/api/v2/auth/session`, {
       method: 'POST',
