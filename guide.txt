@@ -1,102 +1,13 @@
-let redesign this transak widget modal so it is fully in line with our previous cyberpunk designs and also lets make it fully compliant with transak rules
-'use client';
+curl -X POST "https://api-stg.transak.com/partners/api/v2/refresh-token" \
+     -H "Content-Type: application/json" \
+     -H "api-secret: u3Bqaz+ms+MrqEcmXqhtnA==" \
+     -d '{"apiKey": "3d25e6d9-dbca-4fc4-b1b1-70320aac8d08"}'
 
-import React, { useEffect, useState } from 'react';
+@AyoNaim ➜ /workspaces/ecomneedsjungle (main) $ curl -X POST "https://api-stg.transak.com/partners/api/v2/refresh-token" \
+     -H "Content-Type: application/json" \
+     -H "api-secret: u3Bqaz+ms+MrqEcmXqhtnA==" \
+     -d '{"apiKey": "3d25e6d9-dbca-4fc4-b1b1-70320aac8d08"}'
+{"data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQyNTI5LCJleHAiOjE3ODQ0NDczMjl9.sJudUs1qRgNYO2puQ85rdbghcpi2xz7fFoBBI9c4r4M","expiresAt":1784447329}}@AyoNaim ➜ /workspaces/ecomneedsjungle (main) $ 
 
-interface TransakWidgetModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  checkoutAmount: string;
-  userWallet: string;
-  userEmail: string;
-}
 
-export const TransakWidgetModal: React.FC<TransakWidgetModalProps> = ({
-  isOpen,
-  onClose,
-  checkoutAmount,
-  userWallet,
-  userEmail,
-}) => {
-  const [widgetUrl, setWidgetUrl] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (!isOpen) return;
-
-    const initializeSession = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch('/api/checkout/transak', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            amount: checkoutAmount,
-            walletAddress: userWallet,
-            email: userEmail
-          })
-        });
-        const data = await res.json();
-        if (data.widgetUrl) {
-          setWidgetUrl(data.widgetUrl);
-        }
-      } catch (err) {
-        console.error("Transak session setup failed:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    initializeSession();
-  }, [isOpen, checkoutAmount, userWallet, userEmail]);
-
-  if (!isOpen) return null;
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm animate-fade-in">
-      {/* Layout Rule Compliance: Explicit max-width [480px] and min-height [650px] parameters 
-        guarantee texts, disclaimers, and payment options stay highly scannable without clipping.
-      */}
-      <div className="relative w-full max-w-[480px] h-[85dvh] min-h-[650px] max-h-[850px] bg-zinc-950 rounded-2xl shadow-2xl flex flex-col overflow-hidden border border-zinc-800">
-        
-        {/* Modal Window Header Context */}
-        <div className="flex justify-between items-center px-5 py-4 border-b border-zinc-800 bg-zinc-900/40">
-          <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-xs font-bold text-zinc-400 uppercase tracking-widest">Secure Fiat Gateway</span>
-          </div>
-          <button 
-            onClick={onClose}
-            className="text-zinc-400 hover:text-white transition-colors p-1.5 rounded-lg hover:bg-zinc-800 text-sm font-medium"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Dynamic Display Area */}
-        <div className="w-full flex-1 relative bg-zinc-900">
-          {loading ? (
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3">
-              <div className="w-8 h-8 border-2 border-zinc-700 border-t-zinc-200 rounded-full animate-spin" />
-              <p className="text-xs text-zinc-500 font-medium">Securing connection tunnels...</p>
-            </div>
-          ) : widgetUrl ? (
-            <iframe
-              id="transakContainerFrame"
-              src={widgetUrl}
-              /* CRITICAL REGULATORY RULE: Without passing camera and microphone permissions explicitly, 
-                Transak's internal identity verification step will fail during card usage checks.
-              */
-              allow="camera;microphone;payment"
-              className="w-full h-full border-none"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center text-xs text-rose-400">
-              Initialization failed. Please check backend connection logs.
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-};
+"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQyNTI5LCJleHAiOjE3ODQ0NDczMjl9.sJudUs1qRgNYO2puQ85rdbghcpi2xz7fFoBBI9c4r4M"
