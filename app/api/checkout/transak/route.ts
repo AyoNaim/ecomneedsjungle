@@ -72,7 +72,7 @@ export async function POST(request: Request) {
     });
 
     const data = await response.json();
-    return NextResponse.json({ widgetUrl: data.response?.widgetUrl || data.widgetUrl });
+    return NextResponse.json({ widgetUrl: data.data?.widgetUrl || data.widgetUrl });
   } catch (error: any) {
     console.error("Transak session failure:", error.message);
     return NextResponse.json({ error: error.message || 'Failed to initialize secure session' }, { status: 500 });
