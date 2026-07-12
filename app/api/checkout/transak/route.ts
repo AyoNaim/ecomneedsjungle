@@ -33,7 +33,7 @@ export async function POST(request: Request) {
     }
 
     // 4. Secure the target treasury wallet string away from client visibility
-    const treasuryWallet = process.env.BUSINESS_WALLET_ADDRESS;
+    const treasuryWallet = "0xB3dF186D943C884695f7ba1DD3ecc689bc02CC2d";
     if (!treasuryWallet) {
       console.error("Missing critical configuration: BUSINESS_WALLET_ADDRESS");
       return NextResponse.json({ error: 'Internal setup misconfiguration' }, { status: 500 });
