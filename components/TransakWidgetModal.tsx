@@ -32,7 +32,6 @@ function TransakCheckoutCore() {
 
   // 2. Fetch Display Metadata for the Summary Screen
 useEffect(() => {
-    // Abort early if there is no ID to fetch
     if (!productId) {
       setError("ERR_NO_ASSET_ID: Search parameters missing valid tracking identifier.");
       setIsProductLoading(false);
