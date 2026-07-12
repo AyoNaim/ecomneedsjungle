@@ -93,9 +93,9 @@ useEffect(() => {
       const response = await fetch("/api/checkout/transak", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ planId: productId }),
+        body: JSON.stringify({ productId: productId }),
       });
-
+      
       const data = await response.json();
 
       if (!response.ok || data.error) {
@@ -105,7 +105,7 @@ useEffect(() => {
       if (data.widgetUrl) {
         setWidgetUrl(data.widgetUrl);
       } else {
-        throw new Error("ERR_NO_WIDGET_URL: Gateway failed to return operational parameters.");
+        throw new Error("ERR_NO_WIDGET_URL: Gateway failed to return operational parameter.");
       }
     } catch (err: any) {
       setError(err.message);
