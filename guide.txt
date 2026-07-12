@@ -11,3 +11,4 @@ curl -X POST "https://api-stg.transak.com/partners/api/v2/refresh-token" \
 
 
 "accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQyNTI5LCJleHAiOjE3ODQ0NDczMjl9.sJudUs1qRgNYO2puQ85rdbghcpi2xz7fFoBBI9c4r4M"
+

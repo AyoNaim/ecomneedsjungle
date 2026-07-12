@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export async function POST(request: Request) {
+  const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQyNTI5LCJleHAiOjE3ODQ0NDczMjl9.sJudUs1qRgNYO2puQ85rdbghcpi2xz7fFoBBI9c4r4M"
   try {
     // 1. Authenticate the session entirely server-side
     const session = await auth();
@@ -15,8 +16,8 @@ export async function POST(request: Request) {
     // 2. Read only the product identifier from the incoming request body
     const { productId } = await request.json();
     
-    if (productId) {
-      console.error("[API_ERROR]: targetId is undefined. Received body:", request.json());
+    if (!productId) {
+      console.error("[API_ERROR]: targetId is undefined. Received body:", productId);
       return NextResponse.json(
         { error: 'Payload missing valid tracking identifier (productId).' },
         { status: 400 }
@@ -48,7 +49,7 @@ export async function POST(request: Request) {
     const response = await fetch(`${baseUrl}/api/v2/auth/session`, {
       method: 'POST',
       headers: {
-        'access-token': process.env.TRANSAK_ACCESS_TOKEN!,
+        'access-token': accessToken,
         'content-type': 'application/json'
       },
       body: JSON.stringify({
