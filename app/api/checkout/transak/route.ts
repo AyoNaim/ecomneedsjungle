@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 
 export async function POST(request: Request) {
-  const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQ4NzQ1LCJleHAiOjE3ODQ0NTM1NDV9.YnK7tt2p5m0abwz4mMmLLs03MgSJl9X_ND3ehGoG5ck"
+  const accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQ5Mjk4LCJleHAiOjE3ODQ0NTQwOTh9.PLXdaeLqV3_EWo1h2hyzhLgXw56nBv264_N-Zi8-bVc"
   try {
     // 1. Authenticate the session entirely server-side
     const session = await auth();

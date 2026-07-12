@@ -3,12 +3,7 @@ curl -X POST "https://api-stg.transak.com/partners/api/v2/refresh-token" \
      -H "api-secret: u3Bqaz+ms+MrqEcmXqhtnA==" \
      -d '{"apiKey": "3d25e6d9-dbca-4fc4-b1b1-70320aac8d08"}'
 
-@AyoNaim ➜ /workspaces/ecomneedsjungle (main) $ curl -X POST "https://api-stg.transak.com/partners/api/v2/refresh-token" \
-     -H "Content-Type: application/json" \
-     -H "api-secret: u3Bqaz+ms+MrqEcmXqhtnA==" \
-     -d '{"apiKey": "3d25e6d9-dbca-4fc4-b1b1-70320aac8d08"}'
-{"data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQyNTI5LCJleHAiOjE3ODQ0NDczMjl9.sJudUs1qRgNYO2puQ85rdbghcpi2xz7fFoBBI9c4r4M","expiresAt":1784447329}}@AyoNaim ➜ /workspaces/ecomneedsjungle (main) $ 
+ners/api/v2/refresh-token"      -H "Content-Type: application/json"      -H "api-secret: u3Bqaz+ms+MrqEcmXqhtnA=="      -d '{"apiKey": "3d25e6d9-dbca-4fc4-b1b1-70320aac8d08"}'
+{"data":{"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQ5Mjk4LCJleHAiOjE3ODQ0NTQwOTh9.PLXdaeLqV3_EWo1h2hyzhLgXw56nBv264_N-Zi8-bVc","expiresAt":1784454098}}
 
-
-"accessToken":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBUElfS0VZIjoiM2QyNWU2ZDktZGJjYS00ZmM0LWIxYjEtNzAzMjBhYWM4ZDA4IiwiaWF0IjoxNzgzODQyNTI5LCJleHAiOjE3ODQ0NDczMjl9.sJudUs1qRgNYO2puQ85rdbghcpi2xz7fFoBBI9c4r4M"
 
