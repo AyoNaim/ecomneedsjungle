@@ -1,7 +1,3 @@
-this is a code i wrote for transak widget checkout, i need you to delete every iinstance of transak and transak implementation
-and lets just use the iframe instead, the underlying UI (not transak, from !widgetUrl ? ) should be preserved and the 
-when the user clicks on the establish gateway uplink button, they should see the iframe from changenow that already has the
-CSS input illusion to prevent users from malicious changes, and also, s
 "use client";
 
 import React, { useState, useEffect, Suspense } from "react";
@@ -11,12 +7,12 @@ import { CreditCard, Loader2, ArrowRight, ChevronLeft, Cpu, AlertTriangle } from
 interface ProductMetadata {
   id: string;
   title: string;
-  displayPrice: string; // Used strictly for UI display, backend determines actual charge
+  displayPrice: string; // Used dynamically to lock the checkout amount
   category?: string;
 }
 
 // --- CORE COMPONENT ---
-function TransakCheckoutCore() {
+function ChangeNowCheckoutCore() {
   const searchParams = useSearchParams();
   const productId = searchParams.get("product_id");
 
@@ -35,7 +31,7 @@ function TransakCheckoutCore() {
   }, []);
 
   // 2. Fetch Display Metadata for the Summary Screen
-useEffect(() => {
+  useEffect(() => {
     if (!productId) {
       setError("ERR_NO_ASSET_ID: Search parameters missing valid tracking identifier.");
       setIsProductLoading(false);
@@ -44,11 +40,11 @@ useEffect(() => {
 
     const fetchProduct = async () => {
       setIsProductLoading(true);
-      setError(null); // Reset errors on new fetch attempt
+      setError(null); 
 
       try {
         const response = await fetch("/api/get-product", {
-          method: "POST", // Must be POST to send a JSON body
+          method: "POST", 
           headers: { 
             "Content-Type": "application/json" 
           },
@@ -59,13 +55,11 @@ useEffect(() => {
 
         const data = await response.json();
         
-        // Handle HTTP errors returned from the API route (400, 404, 500)
         if (!response.ok) {
           throw new Error(data.error || "Failed to retrieve asset data.");
         }
 
         if (data.product) {
-          // Format the display price here if it comes back as a raw number
           setProduct({
             ...data.product,
             displayPrice: Number(data.product.priceUSD).toFixed(2)
@@ -76,42 +70,33 @@ useEffect(() => {
       } catch (err: any) {
         setError(err.message || "ERR_NETWORK_FAILURE: Unable to establish uplink to registry database.");
       } finally {
-        // Ensure loading state is dropped whether the request succeeds or fails
         setIsProductLoading(false);
       }
     };
 
     fetchProduct();
-  }, [productId]); // Re-run if the URL parameter changes
+  }, [productId]);
 
-  // 3. Initiate Secure Transak Session (Server-Side Resolution)
+  // 3. Construct Secure ChangeNOW Gateway Frame
   const handleInitiateOrder = async () => {
-    if (!productId) return;
+    if (!product) return;
     setIsInitializing(true);
     setError(null);
 
     try {
-      // We ONLY pass the productId (planId). 
-      // The server resolves the price, auth() resolves the email, and process.env resolves the wallet.
-      const response = await fetch("/api/checkout/transak", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ productId: productId }),
-      });
+      const apiKey = process.env.NEXT_PUBLIC_CHANGENOW_API_KEY || "fa4a62601d403cd5381f2b964fdacb681cfdea96b094b206f9213cc49ac50fbf";
+      const WALLET_ADDRESS = process.env.BUSINESS_WALLET_ADDRESS || "0xB3dF186D943C884695f7ba1DD3ecc689bc02CC2d"
       
-      const data = await response.json();
+      // Target lower-fee networks out-of-the-box (e.g., USDT on Binance Smart Chain: usdtbsc)
+      const targetCrypto = "usdtbsc"; 
+      const defaultFiat = "usd";
 
-      if (!response.ok || data.error) {
-        throw new Error(data.error || "Failed to establish secure gateway tunnel");
-      }
-
-      if (data.widgetUrl) {
-        setWidgetUrl(data.widgetUrl);
-      } else {
-        throw new Error("ERR_NO_WIDGET_URL: Gateway failed to return operational parameter.");
-      }
+      // Dynamically map item details to production parameter routes
+      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amountFiat=${product.displayPrice}&fromFiat=usd&isFiat=true&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&toTheMoon=true&backgroundColor=000000&darkMode=true&primaryColor=00C26F`;
+      
+      setWidgetUrl(generatedUrl);
     } catch (err: any) {
-      setError(err.message);
+      setError(err.message || "Failed to construct operational gateway parameters.");
     } finally {
       setIsInitializing(false);
     }
@@ -188,7 +173,7 @@ useEffect(() => {
           </div>
         </div>
       ) : (
-        /* VIEW 2: Embedded Transak Checkout */
+        /* VIEW 2: Embedded ChangeNOW Checkout */
         <div className="animate-in fade-in zoom-in-95 duration-500">
           <button 
             onClick={() => setWidgetUrl(null)}
@@ -197,20 +182,25 @@ useEffect(() => {
             <ChevronLeft className="h-4 w-4" /> ABORT UPLINK
           </button>
 
-          {/* TRANSAK COMPLIANCE CONTAINER 
-            1. width: max-w-[480px] w-full (Ensures it fits mobile without breaking desktop)
-            2. height: h-[700px] min-h-[650px] (Mandatory regulatory height limits so KYC camera UI doesn't clip)
-            3. No overflow-hidden on the parent that would block Transak's internal scroll.
-          */}
-          <div className="w-full max-w-[480px] h-[700px] min-h-[650px] rounded-2xl shadow-2xl bg-[#121214] border border-zinc-800 flex flex-col p-1">
+          {/* CHANGENOW INTERFACE CONTAINER */}
+          <div className="relative w-full max-w-[480px] h-[650px] rounded-2xl shadow-2xl bg-zinc-950 border border-zinc-800 flex flex-col p-1 overflow-hidden">
+            
+            {/* THE GLASS SHIELD INTERCEPTOR
+                Intercepts all click, focus, and selection behaviors directly over the 
+                "You Send" fiat quantity input within the underlying iframe layout.
+            */}
+            <div 
+              className="absolute top-[80px] left-0 right-0 h-[80px] z-20 bg-transparent cursor-not-allowed"
+              title="Transaction amount is hardlocked to current checkout valuation."
+              aria-hidden="true"
+            />
+
             <iframe
-              id="transakCyberpunkFrame"
+              id="changeNowTerminalFrame"
               src={widgetUrl}
-              /* CRITICAL REGULATORY RULE: 
-                Without this hardware string, the real-time KYC liveness check will freeze.
-              */
+              // Mandatory camera capabilities enabled for native mobile KYC scanning sequences
               allow="camera;microphone;payment"
-              className="w-full h-full rounded-[12px] border-none bg-[#121214]"
+              className="w-full h-full rounded-[12px] border-none bg-transparent z-10"
             />
           </div>
         </div>
@@ -226,7 +216,7 @@ useEffect(() => {
 }
 
 // --- MAIN EXPORT W/ SUSPENSE BOUNDARY ---
-export default function TransakCheckoutTerminal() {
+export default function ChangeNowCheckoutTerminal() {
   return (
     <div className="min-h-screen bg-black flex items-center justify-center p-6 text-white font-sans selection:bg-emerald-500/30">
       <Suspense fallback={
@@ -235,7 +225,7 @@ export default function TransakCheckoutTerminal() {
           <span className="text-[10px] font-mono tracking-widest text-zinc-500 uppercase">Booting Secure Container...</span>
         </div>
       }>
-        <TransakCheckoutCore />
+        <ChangeNowCheckoutCore />
       </Suspense>
     </div>
   );
