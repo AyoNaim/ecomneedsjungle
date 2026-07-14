@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { CreditCard, Loader2, ArrowRight, ChevronLeft, Cpu, AlertTriangle } from "lucide-react";
+import Script from "next/script";
 
 interface ProductMetadata {
   id: string;
@@ -201,6 +202,10 @@ function ChangeNowCheckoutCore() {
               // Mandatory camera capabilities enabled for native mobile KYC scanning sequences
               allow="camera;microphone;payment"
               className="w-full h-full rounded-[12px] border-none bg-transparent z-10"
+            />
+            <Script 
+              src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"
+              strategy="afterInteractive"
             />
           </div>
         </div>
