@@ -92,7 +92,7 @@ function ChangeNowCheckoutCore() {
       const defaultFiat = "usd";
 
       // Dynamically map item details to production parameter routes
-      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amountFiat=${product.displayPrice}&fromFiat=usd&isFiat=true&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&toTheMoon=true&backgroundColor=000000&darkMode=true&primaryColor=00C26F`;
+      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amountFiat=${product.displayPrice}&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&toTheMoon=true&backgroundColor=000000&darkMode=true&primaryColor=00C26F`;
       
       setWidgetUrl(generatedUrl);
     } catch (err: any) {
