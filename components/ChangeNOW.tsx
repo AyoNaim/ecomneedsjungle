@@ -86,14 +86,14 @@ function ChangeNowCheckoutCore() {
 
     try {
       const apiKey = process.env.NEXT_PUBLIC_CHANGENOW_API_KEY;
-      const WALLET_ADDRESS = process.env.BUSINESS_WALLET_ADDRESS;
+      const WALLET_ADDRESS = "0xB3dF186D943C884695f7ba1DD3ecc689bc02CC2d";
       
       // Target lower-fee networks out-of-the-box (e.g., USDT on Binance Smart Chain: usdtbsc)
       const targetCrypto = "usdtbsc"; 
       const defaultFiat = "usd";
 
       // Dynamically map item details to production parameter routes
-      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amount=${product.displayPrice}&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&toTheMoon=true&backgroundColor=FFFFFF&darkMode=false&primaryColor=00C26F`;
+      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amount=${product.displayPrice}&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&isFiat&fromFiat=usd&toTheMoon=true&backgroundColor=FFFFFF&darkMode=false&primaryColor=00C26F`;
       // const testUrl = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amount=0.1&backgroundColor=FFFFFF&darkMode=false&from=btc&horizontal=false&lang=en-US&link_id=4c51ac3c0107e3&locales=true&logo=true&primaryColor=00C26F&to=eth'
       setWidgetUrl(generatedUrl);
     } catch (err: any) {
