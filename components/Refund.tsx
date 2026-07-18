@@ -76,7 +76,7 @@ export default function RefundPolicy() {
           viewport={{ once: true }}
           className="mt-16 ml-4 md:ml-16 p-4 border-l-2 border-neutral-700 text-sm text-neutral-500"
         >
-          > To initiate a support ticket regarding a defective asset, transmit logs and purchase ID to support@yourdomain.com.
+          To initiate a support ticket regarding a defective asset, transmit logs and purchase ID to gopro@fixlink.com.ng
         </motion.div>
       </div>
     </div>

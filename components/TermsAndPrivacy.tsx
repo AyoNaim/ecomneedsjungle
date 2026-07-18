@@ -1,9 +1,9 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 
 // Animation Variants
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -11,7 +11,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0, filter: "blur(4px)" },
   visible: {
     y: 0,
@@ -48,7 +48,7 @@ export default function TermsAndPrivacy() {
         {/* Content Sections */}
         <div className="space-y-12">
           {/* Section 1 */}
-          <motion.Section variants={itemVariants} className="group">
+          <motion.div variants={itemVariants} className="group">
             <h2 className="text-xl text-white mb-4 flex items-center gap-3">
               <span className="text-cyan-500">01.</span> Digital Asset Licensing
             </h2>
@@ -60,10 +60,10 @@ export default function TermsAndPrivacy() {
                 You may not redistribute, resell, or lease the raw assets. Modification for personal or client projects is permitted under the standard commercial license tier.
               </p>
             </div>
-          </motion.Section>
+          </motion.div>
 
           {/* Section 2 */}
-          <motion.Section variants={itemVariants} className="group">
+          <motion.div variants={itemVariants} className="group">
             <h2 className="text-xl text-white mb-4 flex items-center gap-3">
               <span className="text-cyan-500">02.</span> Data Telemetry & Privacy
             </h2>
@@ -75,10 +75,10 @@ export default function TermsAndPrivacy() {
                 Financial transactions are routed through encrypted, third-party payment gateways. We do not store native credit card data or raw private keys on our local servers.
               </p>
             </div>
-          </motion.Section>
+          </motion.div>
 
           {/* Section 3 */}
-          <motion.Section variants={itemVariants} className="group">
+          <motion.div variants={itemVariants} className="group">
             <h2 className="text-xl text-white mb-4 flex items-center gap-3">
               <span className="text-cyan-500">03.</span> Account Termination
             </h2>
@@ -87,7 +87,7 @@ export default function TermsAndPrivacy() {
                 We reserve the right to sever system access and terminate accounts found engaging in reverse-engineering of our proprietary assets, chargeback fraud, or distribution of our licensed codebases on unauthorized public repositories.
               </p>
             </div>
-          </motion.Section>
+          </motion.div>
         </div>
         
         {/* Decorative Footer Element */}
