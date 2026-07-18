@@ -85,16 +85,12 @@ function ChangeNowCheckoutCore() {
     setError(null);
 
     try {
-      const apiKey = "fa4a62601d403cd5381f2b964fdacb681cfdea96b094b206f9213cc49ac50fbf";
+      const apiKey = "4c51ac3c0107e3"; 
       const WALLET_ADDRESS = "0xB3dF186D943C884695f7ba1DD3ecc689bc02CC2d";
-      
-      // Target lower-fee networks out-of-the-box (e.g., USDT on Binance Smart Chain: usdtbsc)
-      const targetCrypto = "usdtbsc"; 
-      const defaultFiat = "usd";
 
-      // Dynamically map item details to production parameter routes
-      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amountFiat=${product?.displayPrice}&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&toTheMoon=true&backgroundColor=FFFFFF&darkMode=false&primaryColor=00C26F`;
-      // const testUrl = 'https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amount=0.1&backgroundColor=FFFFFF&darkMode=false&from=btc&horizontal=false&lang=en-US&link_id=4c51ac3c0107e3&locales=true&logo=true&primaryColor=00C26F&to=eth'
+      // Rebuilt URL ensuring complete parameter sync
+      const generatedUrl = `https://changenow.io/embeds/exchange-widget/v2/widget.html?FAQ=false&amountFiat=${product.displayPrice}&fromFiat=usd&isFiat=true&link_id=${apiKey}&to=usdtbsc&address=${WALLET_ADDRESS}&lockAddress=true&toTheMoon=true&backgroundColor=FFFFFF&darkMode=false&primaryColor=00C26F`;
+      
       setWidgetUrl(generatedUrl);
     } catch (err: any) {
       setError(err.message || "Failed to construct operational gateway parameters.");
@@ -186,23 +182,21 @@ function ChangeNowCheckoutCore() {
           {/* CHANGENOW INTERFACE CONTAINER */}
           <div className="relative w-full max-w-[480px] h-[650px] rounded-2xl shadow-2xl bg-zinc-950 border border-zinc-800 flex flex-col p-1 overflow-hidden">
             
-            {/* THE GLASS SHIELD INTERCEPTOR
-                Intercepts all click, focus, and selection behaviors directly over the 
-                "You Send" fiat quantity input within the underlying iframe layout.
-            */}
+            {/* THE GLASS SHIELD INTERCEPTOR */}
             <div 
               className="absolute top-[80px] left-0 right-0 h-[80px] z-20 bg-transparent cursor-not-allowed"
               title="Transaction amount is hardlocked to current checkout valuation."
               aria-hidden="true"
             />
 
+            {/* FIXED ID: Changed from changeNowTerminalFrame to iframe-widget */}
             <iframe
-              id="changeNowTerminalFrame"
+              id="iframe-widget"
               src={widgetUrl}
-              // Mandatory camera capabilities enabled for native mobile KYC scanning sequences
               allow="camera;microphone;payment"
               className="w-full h-full rounded-[12px] border-none bg-transparent z-10"
             />
+            
             <Script 
               src="https://changenow.io/embeds/exchange-widget/v2/stepper-connector.js"
               strategy="afterInteractive"
