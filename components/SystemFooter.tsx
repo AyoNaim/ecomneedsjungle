@@ -92,11 +92,11 @@ export default function SystemFooter() {
           <a href="#docs" className="hover:text-white transition-colors flex items-center gap-2 group">
             <span className="w-1 h-1 bg-transparent group-hover:bg-white transition-colors" /> Documentation
           </a>
-          <a href="#license" className="hover:text-white transition-colors flex items-center gap-2 group">
-            <span className="w-1 h-1 bg-transparent group-hover:bg-white transition-colors" /> Licensing
+          <a href="/refund" className="hover:text-white transition-colors flex items-center gap-2 group">
+            <span className="w-1 h-1 bg-transparent group-hover:bg-white transition-colors" /> Refund Policy
           </a>
-          <a href="#terms" className="hover:text-white transition-colors flex items-center gap-2 group">
-            <span className="w-1 h-1 bg-transparent group-hover:bg-white transition-colors" /> Terms of Protocol
+          <a href="/terms" className="hover:text-white transition-colors flex items-center gap-2 group">
+            <span className="w-1 h-1 bg-transparent group-hover:bg-white transition-colors" /> Terms and Privacy Policy
           </a>
         </motion.div>
 
