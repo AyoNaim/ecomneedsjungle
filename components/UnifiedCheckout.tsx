@@ -366,7 +366,7 @@ function CheckoutCore() {
                   target="_blank"
                   className="text-[10px] text-emerald-500/70 hover:text-emerald-400 underline tracking-wide font-mono mt-1 transition-colors"
                 >
-                  Read Full Vector Agreement ↗
+                  Read Full Refund Agreement ↗
                 </a>
               </div>
             </label>

@@ -143,8 +143,8 @@ export default function SystemFooter() {
       <div className="absolute bottom-0 left-0 w-full px-6 md:px-12 py-4 flex justify-between items-center border-t border-neutral-900/50 text-[9px] font-mono text-neutral-600 uppercase tracking-widest z-10 bg-black/80 backdrop-blur">
         <span>© {new Date().getFullYear()} CORE ARCHITECTURE</span>
         <div className="flex gap-4">
-          <a href="#" className="hover:text-white transition-colors"><Code2 size={12} /></a>
-          <a href="#" className="hover:text-white transition-colors"><Network size={12} /></a>
+          <a href="/terms" className="hover:text-white transition-colors">Terms and Privacy Policy</a>
+          <a href="/refund" className="hover:text-white transition-colors">Refund Policy</a>
         </div>
       </div>
     </footer>

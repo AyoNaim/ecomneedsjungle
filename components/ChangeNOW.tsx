@@ -85,8 +85,8 @@ function ChangeNowCheckoutCore() {
     setError(null);
 
     try {
-      const apiKey = process.env.NEXT_PUBLIC_CHANGENOW_API_KEY || "fa4a62601d403cd5381f2b964fdacb681cfdea96b094b206f9213cc49ac50fbf";
-      const WALLET_ADDRESS = process.env.BUSINESS_WALLET_ADDRESS || "0xB3dF186D943C884695f7ba1DD3ecc689bc02CC2d";
+      const apiKey = "fa4a62601d403cd5381f2b964fdacb681cfdea96b094b206f9213cc49ac50fbf";
+      const WALLET_ADDRESS = "0xB3dF186D943C884695f7ba1DD3ecc689bc02CC2d";
       
       // Target lower-fee networks out-of-the-box (e.g., USDT on Binance Smart Chain: usdtbsc)
       const targetCrypto = "usdtbsc"; 
